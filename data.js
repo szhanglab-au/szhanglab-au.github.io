@@ -22,7 +22,7 @@ const NEWS = [
    Listed in this order. Names here are also underlined in the publication list.
    photo: optional, e.g. "assets/jing.jpg" (otherwise initials are shown)   */
 const STUDENTS = [
-  {name:"Prajwal Basnet", since:"Fall 2023", topics:"Stream processing systems, LSM-tree storage, performance bottlenecks"},
+  {name:"Prajwal Basnet", since:"Spring 2024", topics:"Stream processing systems, LSM-tree storage, performance bottlenecks"},
   {name:"Jing Zou", since:"Summer 2024", topics:"Adversarial robustness, robustness distillation, vision-language models"}
 ];
 

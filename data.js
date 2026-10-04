@@ -10,12 +10,12 @@
    date: any text shown on the left, e.g. "2026", "Sep 5, 2025"
    tag:  optional, "new" or "award"; label is the badge text            */
 const NEWS = [
-  {date:"2026", type:"paper", student:"Jing Zou", title:"CoSFR: Cosine-Guided Sample-Wise Feature Restoration for Robust Zero-Shot Vision-Language Models", venue:"BMVC 2026", tag:"new", label:"New"},
-  {date:"2026", type:"paper", student:"Prajwal Basnet", title:"FlushSync: The Hidden Synchronization Bottleneck in LSM-tree based Stream Processing", venue:"ACM DEBS 2026"},
-  {date:"2026", type:"paper", student:"Jing Zou", title:"HAD: Hybrid Adversarial Distillation Against Adversarial Attacks", venue:"IEEE ICASSP 2026"},
-  {date:"Nov 21, 2025", type:"workshop", student:"Jing Zou", title:"DARD: Dice Adversarial Robustness Distillation Against Adversarial Attacks", venue:"AI in Research and Education (AIRE) Workshop"},
-  {date:"Sep 5, 2025", type:"workshop", student:"Prajwal Basnet", title:"FlushSync: Hardware Resource Stalling caused by Asynchronous Services in LSM-tree based Stateful Streaming Processing Engine", venue:"Cyber-Physical Systems Innovation Symposium 2025"},
-  {date:"2025", type:"paper", student:"Jing Zou", title:"DARD: Dice Adversarial Robustness Distillation Against Adversarial Attacks", venue:"SecureComm 2025", tag:"award", label:"Best Student Paper"}
+  {date:"2026", type:"Paper", work:"CoSFR", venue:"BMVC’26", name:"Jing"},
+  {date:"2026", type:"Paper", work:"FlushSync", venue:"DEBS’26", name:"Prajwal"},
+  {date:"2026", type:"Paper", work:"HAD", venue:"ICASSP’26", name:"Jing"},
+  {date:"Nov 21, 2025", type:"Poster", work:"DARD", venue:"AIRE Workshop’25", name:"Jing"},
+  {date:"Sep 5, 2025", type:"Poster", work:"FlushSync", venue:"CPS Innovation Symposium’25", name:"Prajwal"},
+  {date:"2025", type:"Paper", work:"DARD", venue:"SecureComm’25", name:"Jing", award:"Best Student Paper Award"}
 ];
 
 /* ---------- PhD students ----------

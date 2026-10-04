@@ -213,6 +213,14 @@ section.block.nob{border-bottom:none}
 
 footer{padding:2.4rem 0 3rem; font-size:.88rem; color:var(--muted)}
 footer .wrap{display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap}
+
+.news{border-top:none}
+.news li{grid-template-columns:9.5rem 1fr; padding:.6rem 0; border-bottom:none; align-items:baseline}
+.news time{font-size:.98rem; font-weight:700; color:var(--ink); white-space:nowrap; padding-top:0}
+.news p{margin:0; font-size:1.02rem; line-height:1.55; color:var(--ink)}
+.news .kind{font-weight:700}
+.news .venue{color:var(--accent); font-size:inherit; font-weight:500; text-decoration:none}
+@media (max-width:640px){.news li{grid-template-columns:1fr; gap:.15rem; padding:.7rem 0}}
 </style>
 </head>
 <body>
@@ -417,11 +425,14 @@ function render(f){
 render("all");
 const esc=s=>String(s).replace(/&(?!amp;|lt;|gt;)/g,"&amp;");
 document.getElementById("newslist").innerHTML=NEWS.map(n=>{
-  const tag=n.tag?' <span class="tag '+n.tag+'">'+(n.label||"")+'</span>':'';
-  const body=n.type==="workshop"
-    ? '<strong>'+n.student+'</strong> presented the poster “'+n.title+'” at the <b>'+esc(n.venue)+'</b>.'
-    : 'Congratulations to <strong>'+n.student+'</strong> on the paper “'+n.title+'” being accepted to <b>'+esc(n.venue)+'</b>!';
-  return '<li><time>'+n.date+'</time><div><p class="title">'+body+tag+'</p></div></li>';
+  if(n.text) return '<li><time>'+n.date+'</time><p><b class="kind">['+n.type+']</b> '+n.text+'</p></li>';
+  const v=n.url?'<a class="venue" href="'+n.url+'" target="_blank" rel="noopener">'+n.venue+'</a>':'<span class="venue">'+n.venue+'</span>';
+  const body=n.award
+    ? 'Our work “'+n.work+'” won the '+n.award+' at '+v+'! Congrats, '+n.name+'!'
+    : n.type==="Poster"
+    ? 'Our work “'+n.work+'” presented at '+v+'! Congrats, '+n.name+'!'
+    : 'Our work “'+n.work+'” accepted by '+v+'! Congrats, '+n.name+'!';
+  return '<li><time>'+n.date+'</time><p><b class="kind">['+n.type+']</b> '+body+'</p></li>';
 }).join("");
 document.getElementById("studentlist").innerHTML=STUDENTS.map(s=>{
   const ini=s.name.split(" ").map(w=>w[0]).join("").slice(0,2);

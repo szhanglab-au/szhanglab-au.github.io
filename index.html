@@ -453,5 +453,32 @@ const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links
 document.querySelectorAll("section[id]").forEach(s=>obs.observe(s));
 </script>
      <script src="assets/sky.js"></script>
+  <script>
+/* tail wag: wags once when the page opens, and again whenever the mouse touches the cat */
+(function(){
+  var t=document.querySelector('.hero-emblem .e-tail');
+  if(!t || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  var A=t.getAttribute('d');
+  var B='M50.5 45 C57.5 45.6 63.8 44.6 66.4 40.8 C68.4 37.8 67.4 34.6 65 35.4';
+  var C='M50.5 45 C55.2 44.2 57.8 40.4 58 35.4 C58.1 31.8 55.6 30.2 54.2 32.4';
+  var an=document.createElementNS('http://www.w3.org/2000/svg','animate');
+  an.setAttribute('attributeName','d'); an.setAttribute('begin','indefinite');
+  an.setAttribute('dur','1.6s'); an.setAttribute('fill','freeze');
+  an.setAttribute('calcMode','spline'); an.setAttribute('keyTimes','0;0.25;0.5;0.75;1');
+  an.setAttribute('keySplines','0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1');
+  an.setAttribute('values',[A,B,A,C,A].join(';'));
+  t.appendChild(an);
+  var busy=0;
+  function wag(){ var now=Date.now(); if(now<busy) return; busy=now+1700; try{an.beginElement()}catch(e){} }
+  setTimeout(wag,500);
+  var cat=document.querySelector('.hero-emblem .e-cat'), hero=document.querySelector('.hero')||document;
+  var inside=false;
+  hero.addEventListener('pointermove',function(e){
+    if(!cat) return; var r=cat.getBoundingClientRect();
+    var on=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+    if(on&&!inside) wag(); inside=on;
+  });
+})();
+</script>
 </body>
 </html>

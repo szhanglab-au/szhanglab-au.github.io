@@ -1,13 +1,13 @@
 /* Night-sky hero (assets/sky.js)
    click a star: it lights up
    drag from star to star: draw a constellation (fades after a few seconds)
-   double-click a star: it falls as a meteor, bursts on the ground, then rises back */
+   hover over (or double-click) a star: it falls as a meteor, bursts on the ground, then rises back */
 (function(){
   var hero=document.querySelector('.hero'); if(!hero) return;
   var cv=document.createElement('canvas'); cv.className='sky'; cv.setAttribute('aria-hidden','true');
   hero.insertBefore(cv, hero.firstChild);
   var hint=document.createElement('div'); hint.className='sky-hint';
-  hint.textContent='\u2726 click, drag, or double-click the stars'; hero.appendChild(hint);
+  hint.textContent='\u2726 hover, click, or drag the stars'; hero.appendChild(hint);
   var ctx=cv.getContext('2d'), bg=document.createElement('canvas'), bctx=bg.getContext('2d');
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   var W=0,H=0,DPR=1,stars=[],dust=[],links=[],meteors=[],bursts=[],risers=[];
@@ -58,8 +58,8 @@
       stars.push({x:sx,y:sy,hx:sx,hy:sy,r:rand(1.1,2.4),tw:rand(0,6.3),sp:rand(.8,2),glow:0,state:'sky',c:c});
     }
   }
-  function hit(x,y){
-    var best=null,bd=22*22;
+  function hit(x,y,rad){
+    var best=null,bd=(rad||22)*(rad||22);
     for(var i=0;i<stars.length;i++){var s=stars[i]; if(s.state!=='sky') continue;
       var d=(s.x-x)*(s.x-x)+(s.y-y)*(s.y-y); if(d<bd){bd=d;best=s}}
     return best;
@@ -90,7 +90,11 @@
   });
   cv.addEventListener('pointermove',function(e){
     var p=pos(e);
-    if(!drag){ cv.style.cursor=hit(p.x,p.y)?'pointer':'default'; return; }
+    if(!drag){
+      cv.style.cursor=hit(p.x,p.y)?'pointer':'default';
+      if(e.pointerType==='mouse'){ var h=hit(p.x,p.y,9);
+        if(h && performance.now()>(h.cool||0) && meteors.length<4){ hideHint(); launch(h); } }
+      return; }
     drag.x=p.x; drag.y=p.y;
     var s=hit(p.x,p.y);
     if(s && s!==drag.last){ addLink(drag.last,s); drag.last=s; lastTap={s:null,t:0}; }
@@ -161,7 +165,7 @@
       for(var z=0;z<6;z++){var bk=Math.max(0,ev-z*0.025), zx=Rr.x0+(S.hx-Rr.x0)*bk, zy=Rr.y0+(S.hy-Rr.y0)*bk;
         ctx.fillStyle='rgba('+S.c+','+(0.35*(1-z/6))+')'; ctx.fillRect(zx-1,zy-1,2,2);}
       star(rx,ry,S.r,S.c,.95,.6);
-      if(v>=1){ S.state='sky'; S.x=S.hx; S.y=S.hy; S.glow=1; risers.splice(r2,1); }}
+      if(v>=1){ S.state='sky'; S.x=S.hx; S.y=S.hy; S.glow=1; S.cool=performance.now()+1500; risers.splice(r2,1); }}
     schedule();
   }
   function schedule(){ if(!raf && visible && !document.hidden) raf=requestAnimationFrame(frame); }
@@ -169,4 +173,21 @@
   document.addEventListener('visibilitychange',function(){ if(!document.hidden){prev=performance.now(); schedule();} });
   var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){build(); schedule();},150); });
   build(); schedule();
+})();
+
+/* tail wag: the lab cat wags its tail once when the page loads */
+(function(){
+  var t=document.querySelector('.hero-emblem .e-tail');
+  if(!t || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  var A=t.getAttribute('d');
+  var B='M50.5 45 C57.5 45.6 63.8 44.6 66.4 40.8 C68.4 37.8 67.4 34.6 65 35.4';
+  var C='M50.5 45 C55.2 44.2 57.8 40.4 58 35.4 C58.1 31.8 55.6 30.2 54.2 32.4';
+  var an=document.createElementNS('http://www.w3.org/2000/svg','animate');
+  an.setAttribute('attributeName','d'); an.setAttribute('begin','indefinite');
+  an.setAttribute('dur','1.6s'); an.setAttribute('fill','freeze');
+  an.setAttribute('calcMode','spline'); an.setAttribute('keyTimes','0;0.25;0.5;0.75;1');
+  an.setAttribute('keySplines','0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1');
+  an.setAttribute('values',[A,B,A,C,A].join(';'));
+  t.appendChild(an);
+  setTimeout(function(){ try{an.beginElement()}catch(e){} },500);
 })();

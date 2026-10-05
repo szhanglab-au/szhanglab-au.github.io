@@ -1,7 +1,8 @@
 /* Night-sky hero (assets/sky.js)
    click a star: it lights up
    drag from star to star: draw a constellation (fades after a few seconds)
-   hover over (or double-click) a star: it falls as a meteor, bursts on the ground, then rises back */
+   hover over (or double-click) a star: it falls as a meteor, bursts on the ground,
+   then floats back up as a small Chinese sky lantern (Kongming lantern) and turns into a star again */
 (function(){
   var hero=document.querySelector('.hero'); if(!hero) return;
   var cv=document.createElement('canvas'); cv.className='sky'; cv.setAttribute('aria-hidden','true');
@@ -117,6 +118,39 @@
     if(glow>0.3){ ctx.strokeStyle='rgba('+col+','+(0.5*glow)+')'; ctx.lineWidth=1;
       var L=r*(5+6*glow); ctx.beginPath(); ctx.moveTo(x-L,y); ctx.lineTo(x+L,y); ctx.moveTo(x,y-L); ctx.lineTo(x,y+L); ctx.stroke(); }
   }
+  function lantern(x,y,sc,alpha,flick,rot){
+    ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(sc,sc); ctx.globalAlpha=alpha;
+    // warm halo
+    var g=ctx.createRadialGradient(0,2,0,0,2,34);
+    g.addColorStop(0,'rgba(255,120,60,'+(0.42*flick)+')'); g.addColorStop(1,'rgba(255,120,60,0)');
+    ctx.fillStyle=g; ctx.fillRect(-34,-32,68,68);
+    // red paper body: tall, a little wider at the top, rounded crown
+    ctx.beginPath(); ctx.moveTo(-4.6,9); ctx.lineTo(-6.2,-5.5);
+    ctx.bezierCurveTo(-6.4,-10.5,6.4,-10.5,6.2,-5.5); ctx.lineTo(4.6,9); ctx.closePath();
+    var bd=ctx.createLinearGradient(-6.3,0,6.3,0);
+    bd.addColorStop(0,'#8E1414'); bd.addColorStop(.22,'#D23A2A'); bd.addColorStop(.5,'#FF7B47');
+    bd.addColorStop(.78,'#D23A2A'); bd.addColorStop(1,'#8E1414');
+    ctx.fillStyle=bd; ctx.fill();
+    ctx.save(); ctx.clip();
+    var inner=ctx.createRadialGradient(0,7,0,0,7,11);              // candle light from inside
+    inner.addColorStop(0,'rgba(255,225,140,'+(0.75*flick)+')'); inner.addColorStop(1,'rgba(255,200,120,0)');
+    ctx.fillStyle=inner; ctx.fillRect(-7,-11,14,21);
+    ctx.strokeStyle='rgba(110,15,12,.45)'; ctx.lineWidth=.45;      // paper seams
+    ctx.beginPath(); ctx.moveTo(-2.6,-9); ctx.quadraticCurveTo(-2.9,0,-2.1,9); ctx.moveTo(2.6,-9); ctx.quadraticCurveTo(2.9,0,2.1,9); ctx.stroke();
+    ctx.restore();
+    // gold trims (bamboo rings)
+    ctx.strokeStyle='#F2C14E'; ctx.lineWidth=.7;
+    ctx.beginPath(); ctx.moveTo(-6.0,-5.2); ctx.quadraticCurveTo(0,-4.2,6.0,-5.2); ctx.stroke();
+    // bottom opening: bamboo hoop, cross wires, burning fuel cake
+    ctx.fillStyle='rgba(70,12,10,.95)'; ctx.beginPath(); ctx.ellipse(0,9,4.6,1.15,0,0,6.2832); ctx.fill();
+    ctx.strokeStyle='#E8B04A'; ctx.lineWidth=.8; ctx.stroke();
+    ctx.strokeStyle='rgba(60,40,30,.9)'; ctx.lineWidth=.35; ctx.beginPath();
+    ctx.moveTo(-4.2,8.6); ctx.lineTo(4.2,9.4); ctx.moveTo(-4.2,9.4); ctx.lineTo(4.2,8.6); ctx.stroke();
+    var fr=ctx.createRadialGradient(0,9.4,0,0,9.4,2.6+1.4*flick);
+    fr.addColorStop(0,'rgba(255,255,230,1)'); fr.addColorStop(.45,'rgba(255,200,80,.95)'); fr.addColorStop(1,'rgba(255,120,40,0)');
+    ctx.fillStyle=fr; ctx.beginPath(); ctx.ellipse(0,9.6,1.6,1.3+1.3*flick,0,0,6.2832); ctx.fill();
+    ctx.restore();
+  }
   function frame(now){
     raf=0; var dt=Math.min(.05,(now-prev)/1000); prev=now; var T=now/1000;
     ctx.drawImage(bg,0,0,W,H);
@@ -146,7 +180,7 @@
         ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();}
       star(x,y,M.s.r*1.3,M.s.c,1,1);
       if(u>=1){ meteors.splice(m,1); boom(M.x1,M.y1); M.s.state='gone';
-        risers.push({s:M.s,x0:M.x1,y0:M.y1,t:-rand(3.5,5),d:1.9}); }}
+        risers.push({s:M.s,x0:M.x1,y0:M.y1,t:-rand(1.2,2),d:rand(4.5,5.5),ph:rand(0,6.3),em:[],et:0}); }}
     // bursts
     for(var b=bursts.length-1;b>=0;b--){var B=bursts[b]; B.t+=dt;
       if(B.t<.6){ var rr=6+60*ease(B.t/.6), aa=1-B.t/.6;
@@ -158,13 +192,25 @@
         P.vy+=380*dt; P.x+=P.vx*dt; P.y=Math.min(H-GROUND,P.y+P.vy*dt);
         ctx.fillStyle='rgba(255,'+(200+Math.round(55*Math.random()))+',170,'+(1-B.t/P.l)+')'; ctx.fillRect(P.x-1,P.y-1,2,2);}
       if(!alive && B.t>.6) bursts.splice(b,1); }
-    // risers
+    // risers: the fallen star floats back up as a small sky lantern, then turns back into a star
     for(var r2=risers.length-1;r2>=0;r2--){var Rr=risers[r2]; Rr.t+=dt; if(Rr.t<0) continue;
-      var v=Math.min(1,Rr.t/Rr.d), ev=ease(v), S=Rr.s;
-      var rx=Rr.x0+(S.hx-Rr.x0)*ev, ry=Rr.y0+(S.hy-Rr.y0)*ev;
-      for(var z=0;z<6;z++){var bk=Math.max(0,ev-z*0.025), zx=Rr.x0+(S.hx-Rr.x0)*bk, zy=Rr.y0+(S.hy-Rr.y0)*bk;
-        ctx.fillStyle='rgba('+S.c+','+(0.35*(1-z/6))+')'; ctx.fillRect(zx-1,zy-1,2,2);}
-      star(rx,ry,S.r,S.c,.95,.6);
+      var S=Rr.s, v=Math.min(1,Rr.t/Rr.d), TR=0.86, tv=Math.min(1,v/TR), ev=0.5-0.5*Math.cos(Math.PI*tv);
+      var sway=Math.sin(Rr.t*2.1+Rr.ph)*8*(1-tv*0.85);
+      var lx=Rr.x0+(S.hx-Rr.x0)*ev+sway, ly=Rr.y0-12+(S.hy-(Rr.y0-12))*ev;
+      var rot=Math.cos(Rr.t*2.1+Rr.ph)*0.14*(1-tv), flick=0.75+0.2*Math.sin(T*17+Rr.ph)+0.1*Math.random();
+      Rr.et+=dt; if(v<TR && Rr.et>0.14){ Rr.et=0; Rr.em.push({x:lx+rand(-1.5,1.5),y:ly+13,l:0}); }
+      for(var z=Rr.em.length-1;z>=0;z--){var E=Rr.em[z]; E.l+=dt; E.y+=14*dt; if(E.l>1.1){Rr.em.splice(z,1);continue;}
+        ctx.fillStyle='rgba(255,190,100,'+(0.7*(1-E.l/1.1))+')'; ctx.fillRect(E.x-.8,E.y-.8,1.6,1.6);}
+      if(v<TR){
+        var app=Math.min(1,Rr.t/0.5);
+        lantern(lx,ly,0.75+0.5*app,app,flick,rot);
+      } else {
+        var k=(v-TR)/(1-TR);
+        lantern(S.hx,S.hy,1.25*(1-k),1-k,flick,0);
+        star(S.hx,S.hy,S.r,S.c,k,1-k*0.4);
+        ctx.strokeStyle='rgba(255,226,170,'+(0.6*(1-k))+')'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(S.hx,S.hy,4+18*k,0,6.2832); ctx.stroke();
+      }
       if(v>=1){ S.state='sky'; S.x=S.hx; S.y=S.hy; S.glow=1; S.cool=performance.now()+1500; risers.splice(r2,1); }}
     schedule();
   }
@@ -173,21 +219,4 @@
   document.addEventListener('visibilitychange',function(){ if(!document.hidden){prev=performance.now(); schedule();} });
   var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){build(); schedule();},150); });
   build(); schedule();
-})();
-
-/* tail wag: the lab cat wags its tail once when the page loads */
-(function(){
-  var t=document.querySelector('.hero-emblem .e-tail');
-  if(!t || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
-  var A=t.getAttribute('d');
-  var B='M50.5 45 C57.5 45.6 63.8 44.6 66.4 40.8 C68.4 37.8 67.4 34.6 65 35.4';
-  var C='M50.5 45 C55.2 44.2 57.8 40.4 58 35.4 C58.1 31.8 55.6 30.2 54.2 32.4';
-  var an=document.createElementNS('http://www.w3.org/2000/svg','animate');
-  an.setAttribute('attributeName','d'); an.setAttribute('begin','indefinite');
-  an.setAttribute('dur','1.6s'); an.setAttribute('fill','freeze');
-  an.setAttribute('calcMode','spline'); an.setAttribute('keyTimes','0;0.25;0.5;0.75;1');
-  an.setAttribute('keySplines','0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1');
-  an.setAttribute('values',[A,B,A,C,A].join(';'));
-  t.appendChild(an);
-  setTimeout(function(){ try{an.beginElement()}catch(e){} },500);
 })();

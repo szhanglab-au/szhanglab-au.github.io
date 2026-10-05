@@ -452,5 +452,6 @@ const links=[...ul.querySelectorAll("a")];
 const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle("on",l.getAttribute("href")==="#"+e.target.id))}}),{rootMargin:"-40% 0px -55% 0px"});
 document.querySelectorAll("section[id]").forEach(s=>obs.observe(s));
 </script>
+     <script src="assets/sky.js"></script>
 </body>
 </html>

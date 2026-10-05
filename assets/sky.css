@@ -1,0 +1,21 @@
+/* ===== Night-sky hero (assets/sky.css) ===== */
+.hero{position:relative; overflow:hidden; background:#071330; color:#DDE6FA; border-bottom-color:#0b1a3f}
+.hero canvas.sky{position:absolute; inset:0; z-index:0; display:block}
+.hero .wrap{position:relative; z-index:1; pointer-events:none}
+.hero a{pointer-events:auto}
+.hero h1{color:#F2F6FF}
+.hero .subtitle,.hero .hero-grid > div:first-child > p:not(.lede){color:#7FD3CB}
+.hero p.lede{color:#B9C6E4}
+.hero .meta{color:#93A3C6}
+.hero .meta a{color:#F2F6FF}
+.hero-emblem{filter:drop-shadow(0 0 24px rgba(127,211,203,.20))}
+.hero-emblem .e-shield{stroke:rgba(170,200,245,.35); stroke-width:.5}
+.hero-emblem text{fill:#EEF3FF}
+.hero-emblem text.s{fill:#A9B8D8}
+.hero-emblem .call{stroke:#7E8FB5}
+.hero-emblem .dot{fill:#7E8FB5}
+.hero .cat-note{color:#A9B8D8}
+.hero .cat-note b{color:#EEF3FF}
+.hero-cat svg{color:#DDE6FA}
+.sky-hint{position:absolute; right:1.2rem; bottom:.9rem; z-index:1; font:500 .74rem/1 ui-monospace,"SF Mono",Menlo,Consolas,monospace; color:rgba(185,198,228,.55); letter-spacing:.02em; pointer-events:none; transition:opacity .6s}
+@media (max-width:640px){.sky-hint{right:auto; left:1.5rem}.hero{padding-bottom:3.2rem}}
